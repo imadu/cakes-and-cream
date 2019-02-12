@@ -12,6 +12,7 @@ const passport = require('passport');
 const cors = require('cors');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const cakeRouter = require('./routes/cakes');
 const config = require('./config')();
 
 mongoose.connect(config.db, (err) => {
@@ -45,6 +46,7 @@ app.use(expressValidator());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/cakes', cakeRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

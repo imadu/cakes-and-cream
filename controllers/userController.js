@@ -21,7 +21,7 @@ const userController = {
   },
   // get all users
   getAll(req, res) {
-    User.findOne({ }, '-password', (err, data) => {
+    User.find({ }, '-password', (err, data) => {
       if (err) res.status(500).send({ success: false, message: 'something went wrong', err });
       return res.status(200).send({ success: true, message: 'Here is the data ', data });
     });
@@ -66,8 +66,8 @@ const userController = {
   // update or edit method
   update(req, res) {
     req.checkBody('username', 'empty name').isLength({ min: 1 }).trim().notEmpty();
-    req.checkBody('role', 'empty name').isLength({ min: 1 }).trim().notEmpty();
-    req.checkBody('location', 'empty name').isLength({ min: 1 }).trim().notEmpty();
+    req.checkBody('role', 'empty role').isLength({ min: 1 }).trim().notEmpty();
+    req.checkBody('location', 'empty location').isLength({ min: 1 }).trim().notEmpty();
 
     const validationErrors = req.validationErrors();
     if (validationErrors) res.status(400).send({ success: false, message: 'there are some erros in your form', error: validationErrors });
