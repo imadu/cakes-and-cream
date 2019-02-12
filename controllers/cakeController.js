@@ -84,11 +84,10 @@ const cakeController = {
       const cat = req.body.category;
       const name = req.body.name;
       const category = await CakeCategory.findOne({ name: cat });
-      console.log('category id is', category.id);
       const duplicateName = await Cake.findOne({ name });
       // check if category for cake exist and ensure that no cake has duplicate names
-      if (!category) res.status(400).send({ success: false, message: 'category does not exist, cannot create cake without category' });
-      if (duplicateName) res.status(400).send({ success: false, message: 'duplicate names exist for cake' });
+      if (!category) return res.status(400).send({ success: false, message: 'category does not exist, cannot create cake without category' });
+      if (duplicateName) return  res.status(400).send({ success: false, message: 'duplicate names exist for cake' });
       // if it pass tests then create cake
       let cakeForm = {};
       cakeForm = req.body;

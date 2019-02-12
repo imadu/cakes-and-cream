@@ -57,7 +57,7 @@ const userController = {
         if (error) {
           res.status(500).send({ success: false, message: 'something went wrong', error });
         } else {
-          return res.status(200).json({ success: true, user: newUser._id });
+          return res.status(201).json({ success: true, user: newUser.id });
         }
       });
     });
