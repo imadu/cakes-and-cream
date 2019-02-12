@@ -1,11 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
+
 const passportJWT = require('passport-jwt');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt-nodejs');
 const User = require('../models/user');
+const config = require('../config')();
 
-const { ExtractJwt } = passportJWT.ExtractJwt;
+const ExtractJwt = passportJWT.ExtractJwt;
 const JwtStrategy = passportJWT.Strategy;
 
 module.exports = (passport) => {
@@ -27,7 +29,7 @@ module.exports = (passport) => {
   // passport jwt strategy
   const opts = {};
   opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-  opts.secretOrKey = process.env.AUTH_SECRET;
+  opts.secretOrKey = config.secret;
 
   passport.use(new JwtStrategy(opts, (jwtPayload, done) => {
     User.findById(jwtPayload.user._id, (err, user) => {
@@ -43,20 +45,20 @@ module.exports = (passport) => {
   // Create a passport middleware to handle User login
   passport.use('login', new LocalStrategy(
     {
-      usernameField: 'email',
+      usernameField: 'username',
       passwordField: 'password',
       passReqToCallback: true,
     },
-    (req, email, password, done) => {
+    (req, username, password, done) => {
     // check in mongo if a user with username exists or not
-      User.findOne({ email }, (err, user) => {
+      User.findOne({ username }, (err, user) => {
       // In case of any error, return using the done method
         if (err) {
           return done(err);
         }
         // Username does not exist, log the error and redirect back
         if (!user) {
-          console.log(`User Not Found with username ${email}`);
+          console.log(`User Not Found with username ${username}`);
           return done(null, false);
         }
         // User exists but wrong password, log the error
