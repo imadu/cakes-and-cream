@@ -79,14 +79,23 @@ const orderController = {
   },
   // update the order
   // eslint-disable-next-line consistent-return
-
+  async updateOrder(req, res) {
+    try {
+      const newSectionData = req.body;
+      const idParams = req.params.id;
+      const result = await Order.update({ _id: idParams }, { $set: newSectionData }, { upsert: true });
+      if (result) return res.status(200).send({ success: true, message: 'updated the order', result });
+    } catch (error) {
+      res.status(500).send({ success: false, message: ' you have spoilt it', error });
+    }
+  },
   // cancel orders
   // eslint-disable-next-line consistent-return
   async deleteOrder(req, res) {
     try {
       const idParams = req.params.id;
       const result = await Order.remove({ _id: idParams });
-      if (result) return res.status(200).send({ success: true, message: 'successfully deleted the user', result });
+      if (result) return res.status(200).send({ success: true, message: 'order has been cancelled', result });
     } catch (error) {
       res.status(500).send({ success: false, message: ' you have spoilt it', error });
     }
