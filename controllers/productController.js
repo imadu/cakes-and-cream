@@ -27,15 +27,23 @@ const ProductController = {
     if (err) res.status(400).send({ success: false, message: 'there are some erros in your form', error: err });
     const name = req.body.name;
     ProductCategory.findOne({ name }, (error, category) => {
-      if (error) res.status(500).send({ success: false, message: 'something went wrong', err });
-      if (category) res.status(409).send({ success: false, message: 'duplicate categories cannot exist' });
-      let categoryForm = {};
-      categoryForm = req.body;
-      const newCategory = new ProductCategory(categoryForm);
-      newCategory.save(() => {
-        if (error) res.status(500).send({ success: false, message: 'something went wrong', error });
-        else res.status(200).json({ success: true, category: newCategory.id });
-      });
+      if (error) {
+        res.status(500).send({ success: false, message: 'something went wrong', err });
+      }
+      if (category) {
+        res.status(409).send({ success: false, message: 'duplicate categories cannot exist' });
+      } else {
+        let categoryForm = {};
+        categoryForm = req.body;
+        const newCategory = new ProductCategory(categoryForm);
+        newCategory.save((error2) => {
+          if (error2) {
+            res.status(500).send({ success: false, message: 'something went wrong', error });
+          } else {
+            res.status(200).send({ success: true, category: newCategory.id });
+          }
+        });
+      }
     });
   },
 
@@ -50,7 +58,7 @@ const ProductController = {
         else res.status(200).send({ success: true, message: 'updated the data', data });
       });
   },
-  
+
   // remove the category
   deleteCategory(req, res) {
     const idParams = req.params.id;
@@ -88,7 +96,7 @@ const ProductController = {
       const duplicateName = await Product.findOne({ name });
       // check if category for Product exist and ensure that no Product has duplicate names
       if (!category) return res.status(400).send({ success: false, message: 'category does not exist, cannot create Product without category' });
-      if (duplicateName) return  res.status(400).send({ success: false, message: 'duplicate names exist for Product' });
+      if (duplicateName) return res.status(400).send({ success: false, message: 'duplicate names exist for Product' });
       // if it pass tests then create Product
       let ProductForm = {};
       ProductForm = req.body;
