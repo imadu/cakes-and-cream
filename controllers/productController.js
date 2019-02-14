@@ -34,7 +34,7 @@ const ProductController = {
       const newCategory = new ProductCategory(categoryForm);
       newCategory.save(() => {
         if (error) res.status(500).send({ success: false, message: 'something went wrong', error });
-        else return res.status(200).json({ success: true, category: newCategory.id });
+        else res.status(200).json({ success: true, category: newCategory.id });
       });
     });
   },
