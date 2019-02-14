@@ -12,7 +12,7 @@ const passport = require('passport');
 const cors = require('cors');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
-const cakeRouter = require('./routes/cakes');
+const productRouter = require('./routes/products');
 const orderRouter = require('./routes/orders');
 const config = require('./config')();
 
@@ -47,7 +47,7 @@ app.use(expressValidator());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/cakes', cakeRouter);
+app.use('/products', productRouter);
 app.use('/orders', orderRouter);
 
 // catch 404 and forward to error handler

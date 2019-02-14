@@ -3,21 +3,21 @@ const mongoose = require('mongoose');
 const  Schema  = mongoose.Schema;
 const  ObjectId  = Schema.Types.ObjectId;
 
-const cakeSchema = new Schema({
+const productSchema = new Schema({
   name: { type: String, required: true },
   size: { type: Number, required: true },
   flavor: { type: String },
   description: { type: String },
   price: { type: Number, required: true },
-  category: { type: ObjectId, ref: 'CakeCategory' },
+  category: { type: ObjectId, ref: 'ProductCategory' },
 });
 
-const cakeCategorySchema = new Schema({
+const productCategorySchema = new Schema({
   name: { type: String, required: true },
   description: { type: String },
-  Cakes: [{ type: ObjectId, ref: 'Cake' }],
+  Products: [{ type: ObjectId, ref: 'Product' }],
 });
 
-const Cake = mongoose.model('Cake', cakeSchema);
-const CakeCategory = mongoose.model('CakeCategory', cakeCategorySchema);
-module.exports = { Cake, CakeCategory };
+const Product = mongoose.model('Product', productSchema);
+const ProductCategory = mongoose.model('ProductCategory', productCategorySchema);
+module.exports = { Product, ProductCategory };

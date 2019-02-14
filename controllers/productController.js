@@ -1,11 +1,11 @@
-const Model = require('../models/cake');
+const Model = require('../models/product');
 
-const { Cake, CakeCategory } = Model;
+const { Product, ProductCategory } = Model;
 
-const cakeController = {
+const ProductController = {
   // get all categories
   getCategory(req, res) {
-    CakeCategory.find({}).populate('Cakes').exec((err, data) => {
+    ProductCategory.find({}).populate('Products').exec((err, data) => {
       if (err) throw err;
       else res.status(200).json(data);
     });
@@ -14,24 +14,24 @@ const cakeController = {
   // get category by id
   getCategoryId(req, res) {
     const idparams = req.params.id;
-    CakeCategory.find({ _id: idparams }).populate('Cakes').exec((err, data) => {
+    ProductCategory.find({ _id: idparams }).populate('Products').exec((err, data) => {
       if (err) throw err;
       else res.status(200).json(data);
     });
   },
 
-  // create a new cake category
+  // create a new Product category
   createCategory(req, res) {
     req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
     const err = req.validationErrors();
     if (err) res.status(400).send({ success: false, message: 'there are some erros in your form', error: err });
     const name = req.body.name;
-    CakeCategory.findOne({ name }, (error, category) => {
+    ProductCategory.findOne({ name }, (error, category) => {
       if (error) res.status(500).send({ success: false, message: 'something went wrong', err });
       if (category) res.status(409).send({ success: false, message: 'duplicate categories cannot exist' });
       let categoryForm = {};
       categoryForm = req.body;
-      const newCategory = new CakeCategory(categoryForm);
+      const newCategory = new ProductCategory(categoryForm);
       newCategory.save(() => {
         if (error) res.status(500).send({ success: false, message: 'something went wrong', error });
         else return res.status(200).json({ success: true, category: newCategory.id });
@@ -44,59 +44,60 @@ const cakeController = {
     req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
     const idParams = req.params.id;
     const newSectionData = req.body;
-    CakeCategory.update({ _id: idParams },
+    ProductCategory.update({ _id: idParams },
       { $set: newSectionData }, { upsert: true }, (err, data) => {
         if (err) res.status(500).send({ success: false, message: 'something went wrong', err });
         else res.status(200).send({ success: true, message: 'updated the data', data });
       });
   },
+  
   // remove the category
   deleteCategory(req, res) {
     const idParams = req.params.id;
-    CakeCategory.remove({ _id: idParams }, (err, removed) => {
+    ProductCategory.remove({ _id: idParams }, (err, removed) => {
       if (err) throw err;
       return res.status(200).send({ success: true, message: 'successfully deleted the user', removed });
     });
   },
 
-  // get all cakes
-  getCakes(req, res) {
-    Cake.find({}, (err, cake) => {
+  // get all Products
+  getProducts(req, res) {
+    Product.find({}, (err, Product) => {
       if (err) res.status(500).send({ success: false, message: 'something went wrong', err });
-      else res.status(200).send({ success: true, cake });
+      else res.status(200).send({ success: true, Product });
     });
   },
-  // get a particular cake
-  getCake(req, res) {
+  // get a particular Product
+  getProduct(req, res) {
     const idParams = req.params.id;
-    Cake.find({ _id: idParams }, (err, cake) => {
+    Product.find({ _id: idParams }, (err, Product) => {
       if (err) res.status(500).send({ success: false, message: 'something went wrong', err });
-      else res.status(200).send({ success: true, cake });
+      else res.status(200).send({ success: true, Product });
     });
   },
 
-  // create a cake
-  async makeCake(req, res) {
+  // create a Product
+  async makeProduct(req, res) {
     try {
       req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
       req.checkBody('size', 'empty size').notEmpty();
       req.checkBody('price', 'empty price').notEmpty();
       const cat = req.body.category;
       const name = req.body.name;
-      const category = await CakeCategory.findOne({ name: cat });
-      const duplicateName = await Cake.findOne({ name });
-      // check if category for cake exist and ensure that no cake has duplicate names
-      if (!category) return res.status(400).send({ success: false, message: 'category does not exist, cannot create cake without category' });
-      if (duplicateName) return  res.status(400).send({ success: false, message: 'duplicate names exist for cake' });
-      // if it pass tests then create cake
-      let cakeForm = {};
-      cakeForm = req.body;
-      cakeForm.category = category.id;
-      const newCakeForm = new Cake(cakeForm);
-      newCakeForm.save(() => {
-        category.Cakes = newCakeForm.id;
+      const category = await ProductCategory.findOne({ name: cat });
+      const duplicateName = await Product.findOne({ name });
+      // check if category for Product exist and ensure that no Product has duplicate names
+      if (!category) return res.status(400).send({ success: false, message: 'category does not exist, cannot create Product without category' });
+      if (duplicateName) return  res.status(400).send({ success: false, message: 'duplicate names exist for Product' });
+      // if it pass tests then create Product
+      let ProductForm = {};
+      ProductForm = req.body;
+      ProductForm.category = category.id;
+      const newProductForm = new Product(ProductForm);
+      newProductForm.save(() => {
+        category.Products = newProductForm.id;
         category.save(() => {
-          res.status(201).send({ success: true, message: 'cake made successfully!', category: category.id });
+          res.status(201).send({ success: true, message: 'Product made successfully!', category: category.id });
         });
       });
     } catch (error) {
@@ -104,8 +105,8 @@ const cakeController = {
     }
   },
 
-  // update a cake
-  editCake(req, res) {
+  // update a Product
+  editProduct(req, res) {
     req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
     req.checkBody('size', 'empty size').notEmpty();
     req.checkBody('price', 'empty price').notEmpty();
@@ -113,15 +114,15 @@ const cakeController = {
     if (err) res.status(400).send({ success: false, message: 'there are some erros in your form', error: err });
     const newSectionData = req.body;
     const idParams = req.params.id;
-    Cake.update({ _id: idParams }, { $set: newSectionData }, { upsert: true }, (error, data) => {
+    Product.update({ _id: idParams }, { $set: newSectionData }, { upsert: true }, (error, data) => {
       if (error) res.status(500).send({ success: false, message: 'something went wrong', err });
       else res.status(200).send({ success: true, message: 'updated the data', data });
     });
   },
-  // delete a cake
-  deleteCake(req, res) {
+  // delete a Product
+  deleteProduct(req, res) {
     const idParams = req.params.id;
-    Cake.remove({ _id: idParams }, (err, removed) => {
+    Product.remove({ _id: idParams }, (err, removed) => {
       if (err) throw err;
       return res.status(200).send({ success: true, message: 'successfully deleted the user', removed });
     });
@@ -129,4 +130,4 @@ const cakeController = {
 
 };
 
-module.exports = cakeController;
+module.exports = ProductController;
