@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt-nodejs');
+const config = require('../config')();
 
 const SALT_WORK_FACTOR = 10;
 
@@ -9,14 +10,16 @@ const UserSchema = new mongoose.Schema({
   firstname: String,
   lastname: String,
   email: { type: String, lowercase: true, required: true },
-  location: {
-    type: String, enum: ['IKJ', 'OJB', 'VI', 'SUR', 'ALL'], default: 'ALL', required: true,
+  substore: {
+    type: String, enum: config.adminSubStore, default: config.adminSubStore[0], required: true,
   },
   role: { type: String, enum: ['superadmin', 'admin', 'registered'], default: 'registered' },
   createdAt: { type: Date, default: new Date() },
   createdBy: { type: String, default: '' },
 });
 
+// eslint-disable-next-line func-names
+// eslint-disable-next-line consistent-return
 // eslint-disable-next-line func-names
 UserSchema.pre('save', function (next) {
   const user = this;

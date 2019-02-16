@@ -1,17 +1,19 @@
 const express = require('express');
+const passport = require('passport');
 
 const router = express.Router();
 const orderController = require('../controllers/orderController');
+const ensureToken = require('../strategies/auth-authorization');
 
 // list all orders
-router.get('/', orderController.getOrders);
+router.get('/', ensureToken, passport.authenticate('jwt', { session: false }), orderController.getOrderBySubStore);
 
 // get order by custom order_id
-router.get('/search-order/', orderController.getOrderByOrderId);
+
 // get order by id
 router.get('/search-orders/:id', orderController.getOrderbyId);
 // place order
 router.post('/new-order', orderController.makeOrder);
 // cancel order
-router.delete('/cancel-order', orderController.deleteOrder);
+router.delete('/cancel-order', ensureToken, passport.authenticate('jwt', { session: false }), orderController.deleteOrder);
 module.exports = router;

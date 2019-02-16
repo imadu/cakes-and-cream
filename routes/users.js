@@ -1,21 +1,24 @@
 const express = require('express');
+const passport = require('passport');
 
 const router = express.Router();
 const userController = require('../controllers/userController');
 const loginStrategy = require('../strategies/login-strategy');
+const ensureToken = require('../strategies/auth-authorization');
+
 
 /* GET users listing. */
-router.get('/', userController.getAll);
+router.get('/', ensureToken, passport.authenticate('jwt', { session: false }), userController.getAll);
 // get by id
-router.get('/:id', userController.get);
+router.get('/:id', ensureToken, passport.authenticate('jwt', { session: false }), userController.get);
 // get by mail
-router.get('/:email', userController.getByEmail);
+router.get('/:email', ensureToken, passport.authenticate('jwt', { session: false }), userController.getByEmail);
 // create user
 router.post('/new-user', userController.create);
 // edit user
-router.put('/edit-user/:id', userController.update);
+router.put('/edit-user/:id', ensureToken, passport.authenticate('jwt', { session: false }), userController.update);
 // remove user
-router.delete('/remove-user/:id', userController.delete);
+router.delete('/remove-user/:id', ensureToken, passport.authenticate('jwt', { session: false }), userController.delete);
 // user login
 router.post('/login', loginStrategy.login);
 // user logout

@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 // config/db.js
 module.exports = function () {
   return {
@@ -12,5 +13,20 @@ module.exports = function () {
     redirectUri: 'https://developers.google.com/oauthplayground',
     refresh_token: '1/yANgitwN-_E2eVwn_XmuPU7cBtVMBRACnxKvkSEuW20',
     accessToken: 'ya29.GlsOBjqPJuQ9T-uvQ7pMew8HxTdlRCOYIm_IoZjXHhj_rH5xDrRKLJluKkhQe0SPOqgHH5drFFZ1d4_zwaxSUzjTFxeAi0RVShJbPxtQ2XblqJlPlNaafnhmNgBS',
+    substore: [
+      'OP',
+      'SUR',
+      'VI',
+      'BG',
+    ],
+    adminSubStore: [
+      'ALL',
+      'OP',
+      'SUR',
+      'BG',
+      'VI',
+    ],
   };
 };
+
+// mongodb://imadushop:passme123@ds054118.mlab.com:54118/cakes-and-cream

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const config = require('../config')();
 
 const Schema = mongoose.Schema;
 
@@ -13,8 +14,8 @@ const orderSchema = new Schema({
     quantity: { type: Number },
     category: { type: String },
   }],
-  location: {
-    type: String, enum: ['OPEBI', 'SURULERE', 'VICTORIA-ISLAND', 'BERGER'], default: 'OPEBI', required: true,
+  substore: {
+    type: String, enum: config.substore, default: config.substore[0], required: true,
   },
   delivery_address: { type: String },
   payment_status: { type: String, enum: ['paid', 'pending', 'failed'], default: 'paid' },

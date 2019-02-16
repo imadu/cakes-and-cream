@@ -46,7 +46,6 @@ const ProductController = {
       }
     });
   },
-
   // update a category
   updateCategory(req, res) {
     req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
@@ -58,16 +57,14 @@ const ProductController = {
         else res.status(200).send({ success: true, message: 'updated the data', data });
       });
   },
-
   // remove the category
   deleteCategory(req, res) {
     const idParams = req.params.id;
     ProductCategory.remove({ _id: idParams }, (err, removed) => {
       if (err) throw err;
-      return res.status(200).send({ success: true, message: 'successfully deleted the user', removed });
+      else return res.status(200).send({ success: true, message: 'successfully deleted the user', removed });
     });
   },
-
   // get all Products
   getProducts(req, res) {
     Product.find({}, (err, Product) => {
@@ -112,7 +109,6 @@ const ProductController = {
       res.status(500).send({ success: false, message: ' you have spoilt it', error });
     }
   },
-
   // update a Product
   editProduct(req, res) {
     req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
@@ -132,7 +128,7 @@ const ProductController = {
     const idParams = req.params.id;
     Product.remove({ _id: idParams }, (err, removed) => {
       if (err) throw err;
-      return res.status(200).send({ success: true, message: 'successfully deleted the user', removed });
+      else return res.status(200).send({ success: true, message: 'successfully deleted the user', removed });
     });
   },
 
