@@ -88,23 +88,26 @@ const ProductController = {
       req.checkBody('size', 'empty size').notEmpty();
       req.checkBody('price', 'empty price').notEmpty();
       const cat = req.body.category;
-      const name = req.body.name;
+      const name = req.body.name.toLowerCase();
+      console.log('name is', name);
       const category = await ProductCategory.findOne({ name: cat });
       const duplicateName = await Product.findOne({ name });
       // check if category for Product exist and ensure that no Product has duplicate names
-      if (!category) return res.status(400).send({ success: false, message: 'category does not exist, cannot create Product without category' });
-      if (duplicateName) return res.status(400).send({ success: false, message: 'duplicate names exist for Product' });
-      // if it pass tests then create Product
-      let ProductForm = {};
-      ProductForm = req.body;
-      ProductForm.category = category.id;
-      const newProductForm = new Product(ProductForm);
-      newProductForm.save(() => {
-        category.Products = newProductForm.id;
-        category.save(() => {
-          res.status(201).send({ success: true, message: 'Product made successfully!', category: category.id });
+      if (!category) res.status(400).send({ success: false, message: 'category does not exist, cannot create Product without category' });
+      if (duplicateName) res.status(409).send({ success: false, message: 'duplicate names exist for Product' });
+      else {
+        // if it pass tests then create Product
+        let ProductForm = {};
+        ProductForm = req.body;
+        ProductForm.category = category.id;
+        const newProductForm = new Product(ProductForm);
+        newProductForm.save(() => {
+          category.Products = newProductForm.id;
+          category.save(() => {
+            res.status(201).send({ success: true, message: 'Product made successfully!', category: category.id });
+          });
         });
-      });
+      }
     } catch (error) {
       res.status(500).send({ success: false, message: ' you have spoilt it', error });
     }
