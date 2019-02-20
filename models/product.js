@@ -5,7 +5,7 @@ const  ObjectId  = Schema.Types.ObjectId;
 
 const productSchema = new Schema({
   name: { type: String, required: true },
-  size: [{ value: Number, required: true }],
+  size: [{ value: Number }],
   flavor: [{ name: String }],
   description: { type: String },
   price: { type: Number, required: true },
