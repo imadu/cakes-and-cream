@@ -73,10 +73,15 @@ const orderController = {
   // eslint-disable-next-line consistent-return
   async updateOrder(req, res) {
     try {
-      const newSectionData = req.body;
-      const idParams = req.params.id;
-      const result = await Order.update({ _id: idParams }, { $set: newSectionData }, { upsert: true });
-      if (result) return res.status(200).send({ success: true, message: 'updated the order', result });
+      const { role } = req.createdBy.role;
+      if (role === 'customer') {
+        res.status(403).send({ success: false, message: 'unauthorized to make updates on orders' });
+      } else {
+        const newSectionData = req.body;
+        const idParams = req.params.id;
+        const result = await Order.update({ _id: idParams }, { $set: newSectionData }, { upsert: true });
+        if (result) return res.status(200).send({ success: true, message: 'updated the order', result });
+      }
     } catch (error) {
       res.status(500).send({ success: false, message: ' you have spoilt it', error });
     }

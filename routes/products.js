@@ -4,6 +4,7 @@ const passport = require('passport');
 const router = express.Router();
 const productController = require('../controllers/productController');
 const ensureToken = require('../strategies/auth-authorization');
+const productUploads = require('../strategies/image_upload_strategy');
 
 
 // get all categories
@@ -28,10 +29,10 @@ router.get('/', productController.getProducts);
 router.get('/:id', productController.getProduct);
 
 //  make a Product
-router.post('/new-Product', ensureToken, passport.authenticate('jwt', { session: false }), productController.makeProduct);
+router.post('/new-Product', ensureToken, productUploads.saveImage, passport.authenticate('jwt', { session: false }), productController.makeProduct);
 
 // edit a Product
-router.put('/edit-Product/:id', ensureToken, passport.authenticate('jwt', { session: false }), productController.editProduct);
+router.put('/edit-Product/:id', ensureToken, productUploads.saveImage, passport.authenticate('jwt', { session: false }), productController.editProduct);
 
 // delete a Product
 router.delete('/remove-Product/:id', ensureToken, passport.authenticate('jwt', { session: false }), productController.deleteProduct);

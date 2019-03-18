@@ -10,6 +10,7 @@ const productSchema = new Schema({
   description: { type: String },
   price: { type: Number, required: true },
   category: { type: ObjectId, ref: 'ProductCategory' },
+  productThumbnail: [{ name: String, url: String, blob: String }],
 });
 
 const productCategorySchema = new Schema({

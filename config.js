@@ -13,6 +13,9 @@ module.exports = function () {
     redirectUri: 'https://developers.google.com/oauthplayground',
     refresh_token: '1/yANgitwN-_E2eVwn_XmuPU7cBtVMBRACnxKvkSEuW20',
     accessToken: 'ya29.GlsOBjqPJuQ9T-uvQ7pMew8HxTdlRCOYIm_IoZjXHhj_rH5xDrRKLJluKkhQe0SPOqgHH5drFFZ1d4_zwaxSUzjTFxeAi0RVShJbPxtQ2XblqJlPlNaafnhmNgBS',
+    azureString: 'DefaultEndpointsProtocol=https;AccountName=cakesandcream;AccountKey=vGJiGAAQdDqx2WU/RGZjEc71eowRw677QSBz5MsMFU00NrXknxBrf5Kq2TDEIR9nG7sT+/8H2EGKhGMIcjhukg==;EndpointSuffix=core.windows.net',
+    containerName: 'cakesandcream',
+    containerSecurity: 'blob',
     substore: [
       'OP',
       'SUR',
@@ -20,6 +23,7 @@ module.exports = function () {
       'BG',
     ],
     adminSubStore: [
+      'NULL',
       'ALL',
       'OP',
       'SUR',

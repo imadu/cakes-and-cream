@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema({
   substore: {
     type: String, enum: config.adminSubStore, default: config.adminSubStore[0], required: true,
   },
-  role: { type: String, enum: ['superadmin', 'admin', 'registered'], default: 'registered' },
+  role: { type: String, enum: ['superadmin', 'admin'], default: 'admin' },
   createdAt: { type: Date, default: new Date() },
   createdBy: { type: String, default: '' },
 });

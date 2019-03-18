@@ -32,17 +32,13 @@ const userController = {
     } catch (error) {
       res.status(500).send({ success: false, message: 'something went wrong', error });
     }
-    // User.find({ }, '-password', (err, data) => {
-    //   if (err) res.status(500).send({ success: false, message: 'something went wrong', err });
-    //   return res.status(200).send({ success: true, message: 'Here is the data ', data });
-    // });
   },
   // create method
   create(req, res) {
     // validate the form fields
     req.checkBody('firstname', 'empty name').isLength({ min: 1 }).trim().notEmpty();
-    req.checkBody('role', 'empty name').isLength({ min: 1 }).trim().notEmpty();
-    req.checkBody('username', 'house address cant be empty').notEmpty().isString();
+    req.checkBody('role', 'empty role').isLength({ min: 1 }).trim().notEmpty();
+    req.checkBody('username', 'username cant be empty').notEmpty().isString();
     req.checkBody('email', 'email must be provided').notEmpty().isEmail();
     req.checkBody('substore', 'empty name').isLength({ min: 1 }).trim().notEmpty();
     req.checkBody('password', 'password cant be empty').notEmpty();

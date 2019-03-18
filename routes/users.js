@@ -3,7 +3,7 @@ const passport = require('passport');
 
 const router = express.Router();
 const userController = require('../controllers/userController');
-const loginStrategy = require('../strategies/login-strategy');
+const loginStrategy = require('../controllers/login-strategy');
 const ensureToken = require('../strategies/auth-authorization');
 
 

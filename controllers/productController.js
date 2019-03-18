@@ -67,17 +67,17 @@ const ProductController = {
   },
   // get all Products
   getProducts(req, res) {
-    Product.find({}, (err, Product) => {
+    Product.find({}, (err, data) => {
       if (err) res.status(500).send({ success: false, message: 'something went wrong', err });
-      else res.status(200).send({ success: true, Product });
+      else res.status(200).send({ success: true, data });
     });
   },
   // get a particular Product
   getProduct(req, res) {
     const idParams = req.params.id;
-    Product.find({ _id: idParams }, (err, Product) => {
+    Product.find({ _id: idParams }, (err, data) => {
       if (err) res.status(500).send({ success: false, message: 'something went wrong', err });
-      else res.status(200).send({ success: true, Product });
+      else res.status(200).send({ success: true, data });
     });
   },
 
@@ -89,7 +89,6 @@ const ProductController = {
       req.checkBody('price', 'empty price').notEmpty();
       const cat = req.body.category;
       const name = req.body.name.toLowerCase();
-      console.log('name is', name);
       const category = await ProductCategory.findOne({ name: cat });
       const duplicateName = await Product.findOne({ name });
       // check if category for Product exist and ensure that no Product has duplicate names
@@ -101,6 +100,20 @@ const ProductController = {
         ProductForm = req.body;
         ProductForm.category = category.id;
         const newProductForm = new Product(ProductForm);
+        if (typeof req.files !== 'undefined') {
+          ProductForm.productThumbnail = [];
+          const { files } = req.files;
+
+          files.forEach((element) => {
+            newProductForm.productThumbnail.push({
+              name: element.fieldname,
+              url: element.path,
+              blob: element.filename,
+            });
+          });
+        } else {
+          newProductForm.productThumbnail = null;
+        }
         newProductForm.save(() => {
           category.Products = newProductForm.id;
           category.save(() => {

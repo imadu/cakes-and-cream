@@ -8,7 +8,7 @@ const orderSchema = new Schema({
   customer_name: { type: String, required: true },
   customer_phone: { type: String, required: true },
   customer_email: { type: String, required: true },
-  cakes: [{
+  products: [{
     name: { type: String },
     price: { type: Number },
     quantity: { type: Number },
@@ -19,7 +19,7 @@ const orderSchema = new Schema({
   },
   delivery_address: { type: String },
   payment_status: { type: String, enum: ['paid', 'pending', 'failed'], default: 'paid' },
-  cake_status: { type: String, enum: ['being-made', 'stopped', 'done'], default: 'being-made' },
+  product_status: { type: String, enum: ['being-made', 'stopped', 'done'], default: 'being-made' },
   createdAt: { type: Date, default: new Date() },
 });
 
