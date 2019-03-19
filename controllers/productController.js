@@ -102,19 +102,21 @@ const ProductController = {
         const newProductForm = new Product(ProductForm);
         if (typeof req.files !== 'undefined') {
           ProductForm.productThumbnail = [];
-          const { files } = req.files;
+          const  files  = req.files;
+          console.log('files are', req.files);
 
           files.forEach((element) => {
             newProductForm.productThumbnail.push({
               name: element.fieldname,
-              url: element.path,
-              blob: element.filename,
+              url: element.url,
+              blob: element.blobName,
             });
           });
         } else {
           newProductForm.productThumbnail = null;
         }
-        newProductForm.save(() => {
+        newProductForm.save((err) => {
+          if (err) res.status(400).send({ success: false, message: 'unable to upload new product', err });
           category.Products = newProductForm.id;
           category.save(() => {
             res.status(201).send({ success: true, message: 'Product made successfully!', category: category.id });
