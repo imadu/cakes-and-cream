@@ -8,7 +8,7 @@ const User = require('../models/user');
 const Customer = require('../models/customer');
 const config = require('../config')();
 
-const ExtractJwt = passportJWT.ExtractJwt;
+const { ExtractJwt } = passportJWT;
 const JwtStrategy = passportJWT.Strategy;
 
 module.exports = (passport) => {

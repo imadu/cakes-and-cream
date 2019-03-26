@@ -3,6 +3,7 @@ const passport = require('passport');
 
 const router = express.Router();
 const userController = require('../controllers/userController');
+const customerController = require('../controllers/customerController');
 const loginStrategy = require('../controllers/login-strategy');
 const ensureToken = require('../strategies/auth-authorization');
 
@@ -13,8 +14,11 @@ router.get('/', ensureToken, passport.authenticate('jwt', { session: false }), u
 router.get('/:id', ensureToken, passport.authenticate('jwt', { session: false }), userController.get);
 // get by mail
 router.get('/:email', ensureToken, passport.authenticate('jwt', { session: false }), userController.getByEmail);
-// create user
+// create admin
 router.post('/new-user', userController.create);
+// new customer
+router.post('/new-customer', customerController.createCustomer);
+
 // edit user
 router.put('/edit-user/:id', ensureToken, passport.authenticate('jwt', { session: false }), userController.update);
 // remove user
