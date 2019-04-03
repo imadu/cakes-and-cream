@@ -87,7 +87,7 @@ const orderController = {
       res.status(500).send({ success: false, message: `could not update the cake with id ${idParams} `, error });
     }
   },
-  
+
   // cancel orders
   async deleteOrder(req, res) {
     const idParams = req.params.id;

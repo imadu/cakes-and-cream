@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const config = require('../config')();
 
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 const orderSchema = new Schema({
   order_id: { type: String },

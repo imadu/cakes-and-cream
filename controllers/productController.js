@@ -89,10 +89,6 @@ const ProductController = {
     } catch (error) {
       res.status(500).send({ success: false, message: 'could not find any products', error });
     }
-    // Product.find({}, (err, data) => {
-    //   if (err) res.status(500).send({ success: false, message: 'something went wrong', err });
-    //   else res.status(200).send({ success: true, data });
-    // });
   },
   // get a particular Product
   async getProduct(req, res) {
@@ -111,12 +107,11 @@ const ProductController = {
     req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
     req.checkBody('size', 'empty size').notEmpty();
     req.checkBody('price', 'empty price').notEmpty();
-    const cat = req.body.category;
-    const name = req.body.name.toLowerCase();
-    const category = await ProductCategory.findOne({ name: cat });
+    const { name, category } = req.body;
+    const categoryExists = await ProductCategory.findOne({ name: category });
     const nameExists = await Product.findOne({ name });
     // check if category for Product exist and ensure that no Product has duplicate names
-    if (!category) {
+    if (!categoryExists) {
       res.status(400).send({ success: false, message: 'category does not exist, cannot create Product without category' });
       return;
     }
