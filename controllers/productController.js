@@ -107,11 +107,13 @@ const ProductController = {
     req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
     req.checkBody('size', 'empty size').notEmpty();
     req.checkBody('price', 'empty price').notEmpty();
-    const { name, category } = req.body;
-    const categoryExists = await ProductCategory.findOne({ name: category });
+    const { name } = req.body;
+    const cat = req.body.category;
+    const category = await ProductCategory.findOne({ name: cat });
+    console.log('category is', category);
     const nameExists = await Product.findOne({ name });
     // check if category for Product exist and ensure that no Product has duplicate names
-    if (!categoryExists) {
+    if (!category) {
       res.status(400).send({ success: false, message: 'category does not exist, cannot create Product without category' });
       return;
     }
