@@ -18,8 +18,8 @@ const ProductController = {
   async getCategoryId(req, res) {
     try {
       const idparams = req.params.id;
-      const data = await ProductCategory.find({ _id: idparams }).populate('Products');
-      res.status(200).json(data);
+      const data = await ProductCategory.findOne({ _id: idparams }).populate('Products.Product');
+      res.status(200).send({ success: true, data });
       return;
     } catch (error) {
       res.status(400).send({ success: false, message: `no category found with id  ${req.params.id}`, error });
@@ -35,7 +35,7 @@ const ProductController = {
       return;
     }
     const { name } = req.body;
-    const nameExists = await ProductCategory.find({ name });
+    const nameExists = await ProductCategory.findOne({ name });
     if (nameExists) {
       res.status(409).send({ success: false, message: ' categories with same names are not allowed' });
       return;
@@ -73,7 +73,7 @@ const ProductController = {
   async deleteCategory(req, res) {
     const idParams = req.params.id;
     try {
-      await ProductCategory.remove({ _id: idParams });
+      await ProductCategory.removeOne({ _id: idParams });
       res.status(200).send({ success: true, message: `category with id ${req.params.id} successfully removed` });
       return;
     } catch (error) {
@@ -94,7 +94,7 @@ const ProductController = {
   async getProduct(req, res) {
     const idParams = req.params.id;
     try {
-      const data = await Product.find({ _id: idParams });
+      const data = await Product.find({ _id: idParams }).populate('category', 'name');
       res.status(200).send({ success: true, data });
       return;
     } catch (error) {
@@ -110,10 +110,9 @@ const ProductController = {
     const { name } = req.body;
     const cat = req.body.category;
     const category = await ProductCategory.findOne({ name: cat });
-    console.log('category is', category);
     const nameExists = await Product.findOne({ name });
     // check if category for Product exist and ensure that no Product has duplicate names
-    if (!category) {
+    if (!category.name) {
       res.status(400).send({ success: false, message: 'category does not exist, cannot create Product without category' });
       return;
     }
@@ -124,7 +123,7 @@ const ProductController = {
     // if it pass tests then create Product
     let ProductForm = {};
     ProductForm = req.body;
-    ProductForm.category = category.id;
+    ProductForm.category = category._id;
     const newProduct = new Product(ProductForm);
     if (typeof req.files !== 'undefined') {
       ProductForm.productThumbnail = [];
@@ -160,19 +159,54 @@ const ProductController = {
     }
     const newSectionData = req.body;
     const idParams = req.params.id;
-    try {
-      const data = await Product.update({ _id: idParams }, { $set: newSectionData }, { upsert: true });
-      res.status(200).send({ success: true, message: 'updated the data', data });
+    const PreviousCategory = await ProductCategory.findOne({ Products: idParams });
+    const newCategory = await ProductCategory.findOne({ name: newSectionData.category });
+    // // if product category is not the same as the old
+    if (!PreviousCategory || !newCategory) {
+      res.status(400).send({ success: false, message: 'unable to find old or new category, please check and try again' });
       return;
-    } catch (error) {
-      res.status(500).send({ success: false, message: `could not update the product with id ${req.params.id}`, error });
+    }
+    if (PreviousCategory.name !== newCategory.name) {
+      try {
+        // remove product id from previous product category
+        PreviousCategory.Products.pull(idParams);
+        await PreviousCategory.save();
+      } catch (error) {
+        res.status(500).send({ success: false, message: `failed to remove the category with id ${req.params.id}`, error });
+        return;
+      }
+      // update the new product category
+      newSectionData.category = newCategory.id;
+      try {
+        const updateProduct = await Product.updateOne({ _id: idParams }, { $set: newSectionData }, { upsert: true });
+        newCategory.Products.push(idParams);
+        await newCategory.save();
+        // return the success message
+        res.status(200).send({ success: true, message: 'updated the product', updateProduct });
+        return;
+      } catch (error) {
+        res.status(500).send({ success: false, message: `failed to remove the category with id ${req.params.id}`, error });
+      }
+    } else {
+      try {
+        // update the product as usual
+        const updateProduct = await Product.update({ _id: idParams }, { $set: newSectionData }, { upsert: true });
+        res.status(200).send({ success: true, message: 'updated the product', updateProduct });
+        return;
+      } catch (error) {
+        res.status(500).send({ success: false, message: `failed to  update the product with name ${req.body.name}`, error });
+      }
     }
   },
   // delete a Product
   async deleteProduct(req, res) {
     const idParams = req.params.id;
+    const currentCategory = await ProductCategory.findOne({ Products: idParams });
+    currentCategory.Products.pull(idParams);
+    await currentCategory.save();
     try {
-      const removed = await Product.remove({ _id: idParams });
+    //   // and then delete the product
+      const removed = await Product.deleteOne({ _id: idParams });
       res.status(200).send({ success: true, message: `successfully deleted the product with id ${idParams}`, removed });
       return;
     } catch (error) {

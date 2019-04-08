@@ -12,7 +12,6 @@ const productSchema = new Schema({
   category: { type: ObjectId, ref: 'ProductCategory' },
   productThumbnail: [{ name: String, url: String, blob: String }],
 });
-
 const productCategorySchema = new Schema({
   name: { type: String, required: true },
   description: { type: String },

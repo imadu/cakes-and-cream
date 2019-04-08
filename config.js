@@ -30,6 +30,10 @@ module.exports = function () {
       'BG',
       'VI',
     ],
+    adminRoles: [
+      'superadmin',
+      'admin',
+    ],
   };
 };
 
