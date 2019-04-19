@@ -4,7 +4,9 @@ const passport = require('passport');
 const router = express.Router();
 const productController = require('../controllers/productController');
 const ensureToken = require('../strategies/auth-authorization');
-const productUploads = require('../strategies/image_upload_strategy');
+const Uploads = require('../strategies/image_upload_strategy');
+
+const { productUploads, categoryUploads } = Uploads;
 
 
 // get all categories
@@ -14,7 +16,7 @@ router.get('/categories', productController.getCategory);
 router.get('/categories/:id', productController.getCategoryId);
 
 // create a category
-router.post('/new-category', ensureToken, passport.authenticate('jwt', { session: false }), productController.createCategory);
+router.post('/new-category', ensureToken, categoryUploads.saveImage, passport.authenticate('jwt', { session: false }), productController.createCategory);
 
 // edit a category
 router.put('/edit-category/:id', ensureToken, passport.authenticate('jwt', { session: false }), productController.updateCategory);

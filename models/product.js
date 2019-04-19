@@ -5,16 +5,17 @@ const { ObjectId } = Schema.Types;
 
 const productSchema = new Schema({
   name: { type: String, required: true },
-  size: [{ value: Number }],
+  size: [{ value: Number, price: Number }],
   flavor: [{ name: String }],
   description: { type: String },
-  price: { type: Number, required: true },
   category: { type: ObjectId, ref: 'ProductCategory' },
-  productThumbnail: [{ name: String, url: String, blob: String }],
+  productThumbnail: [{ name: String, url: String }],
+  featured: { type: Boolean, default: false },
 });
 const productCategorySchema = new Schema({
   name: { type: String, required: true },
   description: { type: String },
+  categoryThumbnail: { name: String, url: String, blob: String },
   Products: [{ type: ObjectId, ref: 'Product' }],
 });
 

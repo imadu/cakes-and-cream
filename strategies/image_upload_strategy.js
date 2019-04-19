@@ -1,16 +1,27 @@
 const multer = require('multer');
 const path = require('path');
-const MulterAzureStorage = require('multer-azure-storage');
-const config = require('../config')();
+const cloudinary = require('cloudinary');
+const multerCloudniary = require('multer-storage-cloudinary');
+const configs = require('../config')();
 
-const azureStorage = new MulterAzureStorage({
-  azureStorageConnectionString: config.azureString,
-  containerName: config.containerName,
-  containerSecurity: config.containerSecurity,
+cloudinary.config({
+  cloud_name: 'rightclick-nigeria',
+  api_key: configs.cloudinaryApiKey,
+  api_secret: configs.cloudinaryApiSecret,
+});
+
+const storageImage = multerCloudniary({
+  cloudinary: cloudinary,
+  folder: 'cakes-and-cream',
+  allowedFormats: ['jpg', 'png'],
+  filename: (req, file, cb) => {
+    cb(undefined, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
+  },
 });
 
 
 const productUploads = {};
+const categoryUploads = {};
 
 // const diskStorage = multer.diskStorage({
 //   destination: 'divorce-uploads/',
@@ -33,7 +44,7 @@ function checkFileType(file, cb) {
 }
 
 productUploads.saveImage = multer({
-  storage: azureStorage,
+  storage: storageImage,
   fileFilter: (req, file, cb) => {
     checkFileType(file, cb);
   },
@@ -42,5 +53,15 @@ productUploads.saveImage = multer({
   },
 }).array('productThumbnail');
 
+categoryUploads.saveImage = multer({
+  storage: storageImage,
+  fileFilter: (req, file, cb) => {
+    checkFileType(file, cb);
+  },
+  limits: {
+    fileSize: 2000000,
+  },
+}).array('categoryThumbnail');
 
-module.exports = productUploads;
+
+module.exports = { productUploads, categoryUploads };
