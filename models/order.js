@@ -10,16 +10,18 @@ const orderSchema = new Schema({
   customer_email: { type: String, required: true },
   products: [{
     name: { type: String },
-    price: { type: Number },
+    size: [{ value: Number, price: Number }],
+    flavor: { type: String },
     quantity: { type: Number },
-    category: { type: String },
   }],
   substore: {
     type: String, enum: config.substore, default: config.substore[0], required: true,
   },
   delivery_address: { type: String },
   payment_status: { type: String, enum: ['paid', 'pending', 'failed'], default: 'paid' },
+  payment_method: { type: String, enum: ['card', 'transfer', 'cash'], default: 'card' },
   product_status: { type: String, enum: ['being-made', 'stopped', 'done'], default: 'being-made' },
+  grandTotal: { type: Number },
   createdAt: { type: Date, default: new Date() },
 });
 

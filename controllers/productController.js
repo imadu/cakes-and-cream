@@ -18,7 +18,7 @@ const ProductController = {
   async getCategoryId(req, res) {
     try {
       const idparams = req.params.id;
-      const data = await ProductCategory.findOne({ _id: idparams }).populate('Products.Product');
+      const data = await ProductCategory.findOne({ _id: idparams }).populate('Products');
       res.status(200).send({ success: true, data });
       return;
     } catch (error) {
@@ -45,9 +45,8 @@ const ProductController = {
     const newCategory = new ProductCategory(categoryForm);
     if (typeof req.file !== 'undefined') {
       newCategory.categoryThumbnail = {
-        name: req.file.fieldname,
+        name: req.file.public_id,
         url: req.file.url,
-        blob: req.file.blobName,
       };
     } else {
       newCategory.categoryThumbnail = null;
@@ -170,7 +169,7 @@ const ProductController = {
     const category = await ProductCategory.findOne({ name: cat });
     const nameExists = await Product.findOne({ name });
     // check if category for Product exist and ensure that no Product has duplicate names
-    if (!category.name) {
+    if (!category) {
       res.status(400).send({ success: false, message: 'category does not exist, cannot create Product without category' });
       return;
     }
@@ -184,7 +183,6 @@ const ProductController = {
     ProductForm.category = category._id;
     const newProduct = new Product(ProductForm);
     if (typeof req.files !== 'undefined') {
-      console.log(req.files);
       ProductForm.productThumbnail = [];
       req.files.forEach((element) => {
         newProduct.productThumbnail.push({
@@ -208,8 +206,6 @@ const ProductController = {
   // update a Product
   async editProduct(req, res) {
     req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
-    req.checkBody('size', 'empty size').notEmpty();
-    req.checkBody('price', 'empty price').notEmpty();
     const err = req.validationErrors();
     if (err) {
       res.status(400).send({ success: false, message: 'there are some erros in your form', error: err });

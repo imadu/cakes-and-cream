@@ -61,7 +61,7 @@ categoryUploads.saveImage = multer({
   limits: {
     fileSize: 2000000,
   },
-}).array('categoryThumbnail');
+}).single('categoryThumbnail');
 
 
 module.exports = { productUploads, categoryUploads };
