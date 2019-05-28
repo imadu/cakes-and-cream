@@ -6,7 +6,7 @@ const orderController = require('../controllers/orderController');
 const ensureToken = require('../strategies/auth-authorization');
 
 // list all orders
-router.get('/', ensureToken, passport.authenticate('jwt', { session: false }), orderController.getOrderBySubStore);
+router.get('/', orderController.getOrderBySubStore);
 
 // get order by custom order_id
 

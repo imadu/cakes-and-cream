@@ -8,10 +8,9 @@ const ProductController = {
   async getCategory(req, res) {
     const data = await ProductCategory.find({}).populate('Products');
     if (!data) {
-      res.status(400).send({ success: false, message: 'no categories found' });
-      return;
+      return res.status(400).send({ success: false, message: 'no categories found' });
     }
-    res.status(200).json(data);
+    return res.status(200).json(data);
   },
 
   // get category by id
@@ -19,10 +18,9 @@ const ProductController = {
     try {
       const idparams = req.params.id;
       const data = await ProductCategory.findOne({ _id: idparams }).populate('Products');
-      res.status(200).send({ success: true, data });
-      return;
+      return res.status(200).send({ success: true, data });
     } catch (error) {
-      res.status(400).send({ success: false, message: `no category found with id  ${req.params.id}`, error });
+      return res.status(400).send({ success: false, message: `no category found with id  ${req.params.id}`, error });
     }
   },
 
@@ -31,14 +29,13 @@ const ProductController = {
     req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
     const err = req.validationErrors();
     if (err) {
-      res.status(400).send({ success: false, message: 'there are some erros in your form', error: err });
-      return;
+      return res.status(400).send({ success: false, message: 'there are some erros in your form', error: err });
     }
     const { name } = req.body;
     const nameExists = await ProductCategory.findOne({ name });
     if (nameExists) {
-      res.status(409).send({ success: false, message: ' categories with same names are not allowed' });
-      return;
+      return res.status(409).send({ success: false, message: ' categories with same names are not allowed' });
+      
     }
     let categoryForm = {};
     categoryForm = req.body;
@@ -54,27 +51,25 @@ const ProductController = {
     try {
       await newCategory.save();
     } catch (error) {
-      res.status(500).send({ success: false, message: 'something went wrong', error });
-      return;
+      return res.status(500).send({ success: false, message: 'something went wrong', error });
     }
-    res.status(200).send({ success: true, category: newCategory.id });
+    return res.status(200).send({ success: true, category: newCategory.id });
   },
   // update a category
   async updateCategory(req, res) {
     req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
     const err = req.validationErrors();
     if (err) {
-      res.status(400).send({ success: false, message: 'there are some errors in your form', err });
-      return;
+      return res.status(400).send({ success: false, message: 'there are some errors in your form', err });
+     
     }
     const idParams = req.params.id;
     const newSectionData = req.body;
     try {
       const data = await ProductCategory.update({ _id: idParams }, { $set: newSectionData }, { upsert: true });
-      res.status(200).send({ success: true, message: 'category updated', data });
-      return;
+      return res.status(200).send({ success: true, message: 'category updated', data });
     } catch (error) {
-      res.status(500).send({ success: false, message: `could not update category with id ${req.params.id}`, error });
+      return res.status(500).send({ success: false, message: `could not update category with id ${req.params.id}`, error });
     }
   },
   // remove the category
@@ -141,10 +136,9 @@ const ProductController = {
   async getProducts(req, res) {
     try {
       const data = await Product.find({});
-      res.status(200).send({ success: true, data });
-      return;
+      return res.status(200).send({ success: true, data });
     } catch (error) {
-      res.status(500).send({ success: false, message: 'could not find any products', error });
+      return res.status(500).send({ success: false, message: 'could not find any products', error });
     }
   },
   // get a particular Product
@@ -152,10 +146,9 @@ const ProductController = {
     const idParams = req.params.id;
     try {
       const data = await Product.find({ _id: idParams }).populate('category', 'name');
-      res.status(200).send({ success: true, data });
-      return;
+      return res.status(200).send({ success: true, data });
     } catch (error) {
-      res.status(404).send({ success: false, message: `something went wrong, could not find product with id ${idParams}`, error });
+      return res.status(404).send({ success: false, message: `something went wrong, could not find product with id ${idParams}`, error });
     }
   },
 
@@ -170,12 +163,10 @@ const ProductController = {
     const nameExists = await Product.findOne({ name });
     // check if category for Product exist and ensure that no Product has duplicate names
     if (!category) {
-      res.status(400).send({ success: false, message: 'category does not exist, cannot create Product without category' });
-      return;
+      return res.status(400).send({ success: false, message: 'category does not exist, cannot create Product without category' });
     }
     if (nameExists) {
-      res.status(409).send({ success: false, message: 'name already exists for Product, please choose a different name' });
-      return;
+      return res.status(409).send({ success: false, message: 'name already exists for Product, please choose a different name' });
     }
     // if it pass tests then create Product
     let ProductForm = {};
@@ -196,12 +187,11 @@ const ProductController = {
     try {
       await newProduct.save();
     } catch (error) {
-      res.status(400).send({ success: false, message: 'unable to upload new product', error });
-      return;
+      return res.status(400).send({ success: false, message: 'unable to upload new product', error });
     }
     category.Products.push(newProduct.id);
     await category.save();
-    res.status(201).send({ success: true, message: 'Product made successfully!', category: category.id });
+    return res.status(201).send({ success: true, message: 'Product made successfully!', category: category.id });
   },
   // update a Product
   async editProduct(req, res) {
