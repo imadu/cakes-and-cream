@@ -4,18 +4,24 @@ const makeid = require('../strategies/random_generator');
 const orderController = {
   // get  all orders by sub store
   async getOrderBySubStore(req, res) {
-    const { substore } = req.createdBy;
-    let order;
-    if (substore === 'ALL') {
-      order = await Order.find({ });
-    } else {
-      order = await Order.find({ substore });
+    try {
+      const order = await Order.find({});
+      return res.status(200).send({ success: true, order });
+    } catch (error) {
+      return res.status(500).send({ success: false, message: 'something went wrong', error });
     }
-    if (!order) {
-      res.status(404).send({ success: false, message: 'could not find the order' });
-      return;
-    }
-    res.status(200).send({ success: true, order });
+    // const { substore } = req.createdBy;
+    // let order;
+    // if (substore === 'ALL') {
+    //   order = await Order.find({ });
+    // } else {
+    //   order = await Order.find({ substore });
+    // }
+    // if (!order) {
+    //   res.status(404).send({ success: false, message: 'could not find the order' });
+    //   return;
+    // }
+    // res.status(200).send({ success: true, order });
   },
 
   // get order by id
