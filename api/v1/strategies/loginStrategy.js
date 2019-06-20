@@ -1,20 +1,12 @@
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 // const randToken = require('rand-token');
-const config = require('../config')();
+const config = require('../../../config')();
 
 
 const loginController = {
   // eslint-disable-next-line consistent-return
   login(req, res) {
-    // validation on the form
-    // onst refreshTokens = {};
-    req.checkBody('username', 'username cannot be empty').notEmpty();
-    req.checkBody('password', 'password is required').notEmpty();
-
-    const errors = req.validationErrors();
-    if (errors) return res.status(400).send({ error: 'something went wrong', errors });
-
     passport.authenticate('login', { session: false }, (err, user, info) => {
       if (err || !user) {
         return res.status(400).send({
@@ -47,11 +39,6 @@ const loginController = {
 
   // eslint-disable-next-line consistent-return
   loginCustomer(req, res) {
-    req.checkBody('email', 'email cannot be empty').notEmpty();
-    req.checkBody('password', 'password is required').notEmpty();
-    const errors = req.validationErrors();
-    if (errors) return res.status(400).send({ error: 'something went wrong', errors });
-
     passport.authenticate('customer-login', { session: false }, (err, customer, info) => {
       if (err || !customer) {
         return res.status(400).send({

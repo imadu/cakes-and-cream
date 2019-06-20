@@ -1,31 +1,19 @@
-const Order = require('../models/order');
-const makeid = require('../strategies/random_generator');
+const Order = require('./orderModel');
+const makeid = require('../strategies/randomGenerator');
 
 const orderController = {
   // get  all orders by sub store
-  async getOrderBySubStore(req, res) {
+  async index(req, res) {
     try {
-      const order = await Order.find({});
-      return res.status(200).send({ success: true, order });
+      const data = await Order.find({});
+      return res.status(200).send({ success: true, data });
     } catch (error) {
       return res.status(500).send({ success: false, message: 'something went wrong', error });
     }
-    // const { substore } = req.createdBy;
-    // let order;
-    // if (substore === 'ALL') {
-    //   order = await Order.find({ });
-    // } else {
-    //   order = await Order.find({ substore });
-    // }
-    // if (!order) {
-    //   res.status(404).send({ success: false, message: 'could not find the order' });
-    //   return;
-    // }
-    // res.status(200).send({ success: true, order });
   },
 
   // get order by id
-  async getOrderbyId(req, res) {
+  async get(req, res) {
     const idParams = req.params.id;
     const order = await Order.findOne({ _id: idParams });
     if (!order) {
@@ -36,16 +24,7 @@ const orderController = {
   },
   // create order
 
-  async makeOrder(req, res) {
-    req.checkBody('customer_name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
-    req.checkBody('customer_phone', 'empty phone').notEmpty();
-    req.checkBody('customer_email', 'empty mail').notEmpty().isEmail();
-    req.checkBody('substore', 'empty location').notEmpty();
-    const err = req.validationErrors();
-    if (err) {
-      res.status(400).send({ success: false, message: 'there are errors in your form', err });
-      return;
-    }
+  async create(req, res) {
     let orderForm = {};
     orderForm = req.body;
     const { substore } = orderForm;
@@ -77,7 +56,7 @@ const orderController = {
   },
   // update the order
 
-  async updateOrder(req, res) {
+  async update(req, res) {
     const { role } = req.createdBy;
     if (role === 'customer') {
       res.status(403).send({ success: false, message: 'unauthorized to make updates on orders' });
@@ -95,7 +74,7 @@ const orderController = {
   },
 
   // cancel orders
-  async deleteOrder(req, res) {
+  async delete(req, res) {
     const idParams = req.params.id;
     try {
       const result = await Order.remove({ _id: idParams });

@@ -4,9 +4,8 @@
 const passportJWT = require('passport-jwt');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt-nodejs');
-const User = require('../models/user');
-const Customer = require('../models/customer');
-const config = require('../config')();
+const { AdminModel, CustomerModel } = require('../users/userModel');
+const config = require('../../../config')();
 
 const { ExtractJwt } = passportJWT;
 const JwtStrategy = passportJWT.Strategy;
@@ -33,13 +32,11 @@ module.exports = (passport) => {
   opts.secretOrKey = config.secret;
 
   passport.use(new JwtStrategy(opts, (jwtPayload, done) => {
-    User.findById(jwtPayload.user._id, (err, user) => {
+    AdminModel.findById(jwtPayload.user._id, (err, user) => {
       if (err) {
         return done(err, false);
       }
-      if (user) {
-        return done(null, user);
-      }
+      return done(null, user);
     });
   }));
 
@@ -52,7 +49,7 @@ module.exports = (passport) => {
     },
     (req, username, password, done) => {
     // check in mongo if a user with username exists or not
-      User.findOne({ username }, (err, user) => {
+      AdminModel.findOne({ username }, (err, user) => {
       // In case of any error, return using the done method
         if (err) {
           return done(err);
@@ -77,9 +74,11 @@ module.exports = (passport) => {
   // Strategy for customer login
 
   passport.use('customer-token', new JwtStrategy(opts, (jwtPayload, done) => {
-    Customer.findById(jwtPayload.customer._id, (err, customer) => {
-      if (err) return done(err, false);
-      if (customer) return done(null, customer);
+    CustomerModel.findById(jwtPayload.customer._id, (err, customer) => {
+      if (err) {
+        return done(err, false);
+      }
+      return done(null, customer);
     });
   }));
 
@@ -91,7 +90,7 @@ module.exports = (passport) => {
     },
     (req, email, password, done) => {
       // check in mongo if a user with username exists or not
-      Customer.findOne({ email }, (err, customer) => {
+      CustomerModel.findOne({ email }, (err, customer) => {
         // In case of any error, return using the done method
         if (err) {
           return done(err);

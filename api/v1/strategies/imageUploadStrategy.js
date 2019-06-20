@@ -2,7 +2,7 @@ const multer = require('multer');
 const path = require('path');
 const cloudinary = require('cloudinary');
 const multerCloudniary = require('multer-storage-cloudinary');
-const configs = require('../config')();
+const configs = require('../../../config')();
 
 cloudinary.config({
   cloud_name: 'rightclick-nigeria',
@@ -11,7 +11,7 @@ cloudinary.config({
 });
 
 const storageImage = multerCloudniary({
-  cloudinary: cloudinary,
+  cloudinary,
   folder: 'cakes-and-cream',
   allowedFormats: ['jpg', 'png'],
   filename: (req, file, cb) => {

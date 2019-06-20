@@ -10,10 +10,10 @@ const bodyParser = require('body-parser');
 const expressValidator = require('express-validator');
 const passport = require('passport');
 const cors = require('cors');
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
-const productRouter = require('./routes/products');
-const orderRouter = require('./routes/orders');
+// const indexRouter = require('./routes/index');
+const usersRouter = require('./api/v1/users/userRoute');
+const productRouter = require('./api/v1/products/productRoute');
+const orderRouter = require('./api/v1/orders/orderRoute');
 const config = require('./config')();
 
 mongoose.connect(config.db, (err) => {
@@ -39,16 +39,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(passport.initialize());
 app.use(passport.session());
-require('./strategies/auth-strategy')(passport);
+require('./api/v1/strategies/authStrategy')(passport);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(expressValidator());
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/products', productRouter);
-app.use('/orders', orderRouter);
+app.use('/api/v1/users', usersRouter);
+app.use('/api/v1/products', productRouter);
+app.use('/api/v1/orders', orderRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const config = require('../config')();
+const config = require('../../../config')();
 
 function ensureToken(req, res, next) {
   // grab the token from the header

@@ -1,45 +1,49 @@
 
-const Model = require('../models/product');
+const { Product, ProductCategory } = require('./productModel');
 
-const { Product, ProductCategory } = Model;
-
-const ProductController = {
+const CategoryController = {
   // get all categories
-  async getCategory(req, res) {
-    const data = await ProductCategory.find({}).populate('Products');
-    if (!data) {
+  async index(req, res) {
+    try {
+      const data = await ProductCategory.find({}).and({ storeid: req.createdBy.storeid }).populate('Products');
+      return res.status(200).json(data);
+    } catch (error) {
       return res.status(400).send({ success: false, message: 'no categories found' });
     }
-    return res.status(200).json(data);
   },
 
   // get category by id
-  async getCategoryId(req, res) {
+  async get(req, res) {
+    const idparams = req.params.id;
     try {
-      const idparams = req.params.id;
-      const data = await ProductCategory.findOne({ _id: idparams }).populate('Products');
+      const data = await ProductCategory.findOne({ storeid: req.createdBy.storeid }).and({ _id: idparams }).populate('Products');
       return res.status(200).send({ success: true, data });
     } catch (error) {
       return res.status(400).send({ success: false, message: `no category found with id  ${req.params.id}`, error });
     }
   },
 
-  // create a new Product category
-  async createCategory(req, res) {
-    req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
-    const err = req.validationErrors();
-    if (err) {
-      return res.status(400).send({ success: false, message: 'there are some erros in your form', error: err });
+  async getName(req, name) {
+    try {
+      const nameExists = await ProductCategory.findOne({ storeid: req.createdBy.id }).and({ name });
+      return nameExists.name;
+    } catch (error) {
+      throw error;
     }
+  },
+
+  // create a new Product category
+  async create(req, res) {
     const { name } = req.body;
-    const nameExists = await ProductCategory.findOne({ name });
+    const nameExists = await this.getName(req, name);
     if (nameExists) {
-      return res.status(409).send({ success: false, message: ' categories with same names are not allowed' });
-      
+      return res.status(409).send({ success: false, message: ' categories with same names are not allowed' }); 
     }
     let categoryForm = {};
     categoryForm = req.body;
+    categoryForm.storeid = req.createdBy.storeid;
     const newCategory = new ProductCategory(categoryForm);
+    // file upload for category
     if (typeof req.file !== 'undefined') {
       newCategory.categoryThumbnail = {
         name: req.file.public_id,
@@ -48,6 +52,7 @@ const ProductController = {
     } else {
       newCategory.categoryThumbnail = null;
     }
+    // save the category;
     try {
       await newCategory.save();
     } catch (error) {
@@ -56,13 +61,7 @@ const ProductController = {
     return res.status(200).send({ success: true, category: newCategory.id });
   },
   // update a category
-  async updateCategory(req, res) {
-    req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
-    const err = req.validationErrors();
-    if (err) {
-      return res.status(400).send({ success: false, message: 'there are some errors in your form', err });
-     
-    }
+  async update(req, res) {
     const idParams = req.params.id;
     const newSectionData = req.body;
     try {
@@ -73,16 +72,16 @@ const ProductController = {
     }
   },
   // remove the category
-  async deleteCategory(req, res) {
+  async delete(req, res) {
     const idParams = req.params.id;
     // find the category first
-    const oldCategory = await ProductCategory.findOne({ _id: idParams });
+    const oldCategory = await this.get(req);
     // check if there is a category named 'uncategorized'
-    let uncategorised = await ProductCategory.findOne({ name: 'uncategorized' });
+    let uncategorised = await this.getName(req, 'uncategorized');
     // if no uncategorized category, create a new one
     if (!uncategorised) {
       try {
-        uncategorised = await ProductCategory.create({ name: 'uncategorized', description: 'uncategorized products' });
+        uncategorised = await this.create(req);
         // then push the products into the new uncategorised category
         oldCategory.Products.forEach((element) => {
           uncategorised.Products.push(element);
@@ -131,21 +130,22 @@ const ProductController = {
       }
     }
   },
+};
 
-  // get all Products
-  async getProducts(req, res) {
+const ProductController = {
+  async index(req, res) {
     try {
-      const data = await Product.find({});
+      const data = await Product.find({ storeid: req.createdBy.storeid });
       return res.status(200).send({ success: true, data });
     } catch (error) {
       return res.status(500).send({ success: false, message: 'could not find any products', error });
     }
   },
   // get a particular Product
-  async getProduct(req, res) {
+  async get(req, res) {
     const idParams = req.params.id;
     try {
-      const data = await Product.find({ _id: idParams }).populate('category', 'name');
+      const data = await Product.findOne({ _id: idParams }).populate('category', 'name');
       return res.status(200).send({ success: true, data });
     } catch (error) {
       return res.status(404).send({ success: false, message: `something went wrong, could not find product with id ${idParams}`, error });
@@ -153,13 +153,10 @@ const ProductController = {
   },
 
   // create a Product
-  async makeProduct(req, res) {
-    req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
-    req.checkBody('size', 'empty size').notEmpty();
-    req.checkBody('price', 'empty price').notEmpty();
+  async create(req, res) {
     const { name } = req.body;
     const cat = req.body.category;
-    const category = await ProductCategory.findOne({ name: cat });
+    const category = await ProductController.getName(req, cat);
     const nameExists = await Product.findOne({ name });
     // check if category for Product exist and ensure that no Product has duplicate names
     if (!category) {
@@ -194,13 +191,7 @@ const ProductController = {
     return res.status(201).send({ success: true, message: 'Product made successfully!', category: category.id });
   },
   // update a Product
-  async editProduct(req, res) {
-    req.checkBody('name', 'empty name').isLength({ min: 1 }).trim().notEmpty();
-    const err = req.validationErrors();
-    if (err) {
-      res.status(400).send({ success: false, message: 'there are some erros in your form', error: err });
-      return;
-    }
+  async edit(req, res) {
     const newSectionData = req.body;
     const idParams = req.params.id;
     const PreviousCategory = await ProductCategory.findOne({ Products: idParams });
@@ -243,7 +234,7 @@ const ProductController = {
     }
   },
   // delete a Product
-  async deleteProduct(req, res) {
+  async delete(req, res) {
     const idParams = req.params.id;
     const currentCategory = await ProductCategory.findOne({ Products: idParams });
     currentCategory.Products.pull(idParams);
@@ -257,7 +248,6 @@ const ProductController = {
       res.status(500).send({ success: false, message: `failed to remove the category with id ${req.params.id}`, error });
     }
   },
-
 };
 
-module.exports = ProductController;
+module.exports = { CategoryController, ProductController };
